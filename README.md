@@ -253,7 +253,7 @@ SchoolApp/
                         │ eleve_id    │    │ eleve_id    │
                         │ matiere_id  │    │ montant     │
                         │ trimestre   │    │ created_at  │
-                        │ valeur      │    │ deleted_at  │
+                        │ valeurs     │    │ deleted_at  │
                         │ deleted_at  │    └─────────────┘
                         └─────────────┘
 ```
@@ -282,7 +282,7 @@ SchoolApp/
 - `photo` : chemin vers la photo stockée dans `storage/app/public/photos_eleves/`
 
 **`notes`** — Une ligne par élève + matière + trimestre
-- `valeur` : la note obtenue (ex: 14.5 sur 20, ou 7 sur 10)
+- `valeurs` : la note obtenue (ex: 14.5 sur 20, ou 7 sur 10)
 - `trimestre` : 1, 2 ou 3
 - Contrainte unique : un élève ne peut avoir qu'une seule note par matière par trimestre
 
