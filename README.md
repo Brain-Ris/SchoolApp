@@ -26,6 +26,7 @@ Elle permet à un **gestionnaire** d'administrer l'école et à des **enseignant
 ### Ce que l'application permet de faire
 
 | Fonctionnalité                    | Gestionnaire | Enseignant  |
+|---|---|---|
 | Créer / supprimer des classes     |       ✅     |    ❌      |
 | Créer / supprimer des matières    |       ✅     |    ❌      |
 | Inscrire / supprimer des élèves   |       ✅     |    ❌      |
