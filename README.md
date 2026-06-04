@@ -35,7 +35,7 @@ Elle permet à un **gestionnaire** d'administrer l'école et à des **enseignant
 | Voir le classement des élèves     |       ✅     |    ✅      |
 | Saisir / modifier des notes       |       ❌     |    ✅      |
 | Télécharger un bulletin PDF       |       ✅     |    ✅      |
-| Télécharger un reçu de paiement   |       ✅     |    ✅      |
+| Télécharger un reçu de paiement   |       ✅     |    ❌      |
 
 ---
 
