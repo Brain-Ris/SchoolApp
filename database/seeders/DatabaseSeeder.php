@@ -2,262 +2,195 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Classe;
 use App\Models\Matiere;
 use App\Models\Eleve;
-use App\Models\Paiement;
 use App\Models\Note;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Paiement;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Gestionnaire
-        |--------------------------------------------------------------------------
-        */
+        $this->command->info('Début du Seeding SchoolApp avec nouvelles matières...');
 
-        User::firstOrCreate(
-            ['email' => 'admin@gmail.com'],
-            [
-                'name' => 'Administrateur',
-                'password' => Hash::make('Admin@1234'),
-                'role' => 'gestionnaire',
-                'is_first_login' => true,
-            ]
-        );
+        // ====================== 1. CRÉATION DES MATIÈRES ======================
+        $this->command->info('Création des matières...');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Matières
-        |--------------------------------------------------------------------------
-        */
-
-        $matieres = collect([
-            'Mathématiques',
-            'Français',
-            'Histoire',
-            'Géographie',
-            'Sciences',
-            'Éducation Civique',
-            'Anglais',
-            'Sport',
-        ])->map(function ($nom) {
-            return Matiere::create([
-                'nom' => $nom,
-            ]);
-        });
-
-        /*
-        |--------------------------------------------------------------------------
-        | Classes
-        |--------------------------------------------------------------------------
-        */
-
-        $classesData = [
-            ['CP1', 50000],
-            ['CP2', 50000],
-            ['CE1', 60000],
-            ['CE2', 60000],
-            ['CM1', 75000],
-            ['CM2', 75000],
+        $matieresData = [
+            ['nom' => 'Opérations'],
+            ['nom' => 'Problèmes'],
+            ['nom' => 'Expression écrite'],
+            ['nom' => 'Etude de texte'],
+            ['nom' => 'Histoire-Géographie'],
+            ['nom' => 'Lecture'],
+            ['nom' => 'Récitation-Chant'],
+            ['nom' => 'Ecriture'],
+            ['nom' => 'Exercices-Observations'],
+            ['nom' => 'Sport'],
+            ['nom' => 'Anglais'],
+            ['nom' => 'Dessin'],
+            ['nom' => 'Education Civique'],
         ];
 
-        /*
-        |--------------------------------------------------------------------------
-        | Enseignants
-        |--------------------------------------------------------------------------
-        */
+        $matieres = [];
+        foreach ($matieresData as $data) {
+            $matieres[$data['nom']] = Matiere::create($data);
+        }
 
-        $enseignantsData = [
-            ['Pierre KABORE', 'pierre@schoolapp.com'],
-            ['Awa OUEDRAOGO', 'awa@schoolapp.com'],
-            ['Moussa TRAORE', 'moussa@schoolapp.com'],
-            ['Fatou ZONGO', 'fatou@schoolapp.com'],
-            ['Issa SAWADOGO', 'issa@schoolapp.com'],
-            ['Mariam BARRY', 'mariam@schoolapp.com'],
+        // ====================== 2. CRÉATION DU GESTIONNAIRE ======================
+        $this->command->info('Création du compte Gestionnaire...');
+
+        User::create([
+            'name'            => 'Administrateur',
+            'email'           => 'admin@gmail.com',
+            'password'        => Hash::make('Admin@1234'),
+            'role'            => 'gestionnaire',
+            'is_first_login'  => true,
+        ]);
+
+        // ====================== 3. CRÉATION DES CLASSES, ENSEIGNANTS & ÉLÈVES ======================
+        $this->command->info('Création des classes, enseignants et élèves...');
+
+        $classesData = [
+            ['nom' => 'CP1', 'frais' => 75000],
+            ['nom' => 'CP2', 'frais' => 75000],
+            ['nom' => 'CE1', 'frais' => 85000],
+            ['nom' => 'CE2', 'frais' => 85000],
+            ['nom' => 'CM1', 'frais' => 95000],
+            ['nom' => 'CM2', 'frais' => 95000],
+        ];
+
+        $enseignants = [
+            ['name' => 'Pierre KABORE', 'email' => 'pierre@schoolapp.com'],
+            ['name' => 'Awa OUEDRAOGO', 'email' => 'awa@schoolapp.com'],
+            ['name' => 'Moussa TRAORE', 'email' => 'moussa@schoolapp.com'],
+            ['name' => 'Fatou ZONGO', 'email' => 'fatou@schoolapp.com'],
+            ['name' => 'Issa SAWADOGO', 'email' => 'issa@schoolapp.com'],
+            ['name' => 'Mariam BARRY', 'email' => 'mariam@schoolapp.com'],
         ];
 
         foreach ($classesData as $index => $data) {
+            $classeNom = $data['nom'];
 
-            [$nomClasse, $frais] = $data;
-
-            $classe = Classe::create([
-                'nom' => $nomClasse,
-                'frais' => $frais,
-            ]);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Enseignant
-            |--------------------------------------------------------------------------
-            */
-
+            // Création de l'enseignant
             $enseignant = User::create([
-                'name' => $enseignantsData[$index][0],
-                'email' => $enseignantsData[$index][1],
-                'password' => Hash::make('Password@123'),
-                'role' => 'enseignant',
-                'classe_id' => $classe->id,
+                'name'           => $enseignants[$index]['name'],
+                'email'          => $enseignants[$index]['email'],
+                'password'       => Hash::make('Password@123'),
+                'role'           => 'enseignant',
                 'is_first_login' => true,
             ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Matières de la classe
-            |--------------------------------------------------------------------------
-            */
+            // Création de la classe
+            $classe = Classe::create([
+                'nom'  => $classeNom,
+                'frais' => $data['frais'],
+            ]);
 
-            foreach ($matieres as $matiere) {
+            // Association enseignant → classe
+            $enseignant->update(['classe_id' => $classe->id]);
 
-                $bareme = $matiere->nom === 'Sport'
-                    ? 10
-                    : 20;
+            // ====================== ASSOCIATION DES MATIÈRES PAR CLASSE ======================
+            $this->associerMatieresAClasse($classe, $matieres, $classeNom, $enseignant->id);
 
-                $classe->matieres()->attach(
-                    $matiere->id,
-                    [
-                        'bareme' => $bareme,
-                        'user_id' => $enseignant->id,
-                    ]
-                );
-            }
+            // Création des élèves + notes (trimestre 1 & 2 seulement)
+            $this->creerElevesAvecNotes($classe);
+        }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Élèves
-            |--------------------------------------------------------------------------
-            */
+        $this->command->info('Seeding terminé avec succès ! 🎉');
+    }
 
-            for ($i = 1; $i <= 20; $i++) {
+    /**
+     * Associe les bonnes matières selon le niveau de la classe
+     */
+    private function associerMatieresAClasse(Classe $classe, $matieres, string $classeNom, int $enseignantId)
+    {
+        $isCP = in_array($classeNom, ['CP1', 'CP2']);
+        $isCE_CM = ! $isCP; // CE1, CE2, CM1, CM2
 
-                $genre = $i <= 10 ? 'M' : 'F';
+        // Matières communes à toutes les classes
+        $classe->matieres()->attach($matieres['Opérations']->id, ['bareme' => 20, 'user_id' => $enseignantId]);
+        $classe->matieres()->attach($matieres['Expression écrite']->id, ['bareme' => 20, 'user_id' => $enseignantId]);
+        $classe->matieres()->attach($matieres['Lecture']->id, ['bareme' => 20, 'user_id' => $enseignantId]);
+        $classe->matieres()->attach($matieres['Récitation-Chant']->id, ['bareme' => 10, 'user_id' => $enseignantId]);
+        $classe->matieres()->attach($matieres['Exercices-Observations']->id, ['bareme' => 10, 'user_id' => $enseignantId]);
+        $classe->matieres()->attach($matieres['Sport']->id, ['bareme' => 10, 'user_id' => $enseignantId]);
+        $classe->matieres()->attach($matieres['Dessin']->id, ['bareme' => 10, 'user_id' => $enseignantId]);
+        $classe->matieres()->attach($matieres['Education Civique']->id, ['bareme' => 10, 'user_id' => $enseignantId]);
 
-                $eleve = Eleve::create([
-                    'nom' => fake()->lastName(),
-                    'prenom' => fake()->firstName(),
-                    'genre' => $genre,
-                    'classe_id' => $classe->id,
-                    'photo' => null,
-                ]);
+        // Matières spécifiques
+        if ($isCP) {
+            $classe->matieres()->attach($matieres['Ecriture']->id, ['bareme' => 10, 'user_id' => $enseignantId]);
+        }
 
-                /*
-                |--------------------------------------------------------------------------
-                | Paiements réalistes
-                |--------------------------------------------------------------------------
-                */
+        if ($isCE_CM) {
+            $classe->matieres()->attach($matieres['Problèmes']->id, ['bareme' => 20, 'user_id' => $enseignantId]);
+            $classe->matieres()->attach($matieres['Histoire-Géographie']->id, ['bareme' => 20, 'user_id' => $enseignantId]);
+            $classe->matieres()->attach($matieres['Anglais']->id, ['bareme' => 20, 'user_id' => $enseignantId]);
+        }
 
-                $fraisClasse = $classe->frais;
-                $montantPaye = 0;
+        if (in_array($classeNom, ['CM1', 'CM2'])) {
+            $classe->matieres()->attach($matieres['Etude de texte']->id, ['bareme' => 20, 'user_id' => $enseignantId]);
+        }
+    }
 
-                $nbVersements = rand(1, 4);
+    /**
+     * Crée les élèves et leurs notes (Trimestre 1 et 2 seulement)
+     */
+    private function creerElevesAvecNotes(Classe $classe)
+    {
+        $prenomsGarcons = ['Abdoul', 'Ibrahim', 'Moussa', 'Amadou', 'Souleymane', 'Yacouba', 'Boubacar', 'Hamza'];
+        $prenomsFilles  = ['Fatima', 'Aicha', 'Mariam', 'Kadiatou', 'Rachida', 'Aminata', 'Salimata', 'Hafsatou'];
+        $noms = ['SOME', 'OUEDRAOGO', 'TRAORE', 'KABORE', 'SAWADOGO', 'ZONGO', 'DIALLO', 'BARRY'];
 
-                for ($j = 0; $j < $nbVersements; $j++) {
+        $elevesCount = rand(8, 11);
 
-                    $reste = $fraisClasse - $montantPaye;
+        for ($i = 0; $i < $elevesCount; $i++) {
+            $genre   = $i % 2 === 0 ? 'M' : 'F';
+            $prenom  = $genre === 'M' 
+                        ? $prenomsGarcons[array_rand($prenomsGarcons)] 
+                        : $prenomsFilles[array_rand($prenomsFilles)];
 
-                    if ($reste <= 0) {
-                        break;
-                    }
+            $nom = $noms[array_rand($noms)];
 
-                    $montant = rand(
-                        1000,
-                        min(20000, $reste)
-                    );
+            $eleve = Eleve::create([
+                'classe_id' => $classe->id,
+                'nom'       => $nom,
+                'prenom'    => $prenom,
+                'genre'     => $genre,
+                'photo'     => null,
+            ]);
 
-                    $montantPaye += $montant;
+            // Récupérer les matières de la classe avec barème
+            $matieresClasse = $classe->matieres()->withPivot('bareme')->get();
 
-                    Paiement::create([
-                        'eleve_id' => $eleve->id,
-                        'montant' => $montant,
-                        'created_at' => now()->subDays(rand(1, 180)),
-                        'updated_at' => now(),
+            foreach ($matieresClasse as $matiere) {
+                $bareme = $matiere->pivot->bareme;
+
+                // Notes obligatoires pour Trimestre 1 et 2
+                for ($trimestre = 1; $trimestre <= 2; $trimestre++) {
+                    $note = rand(45, $bareme * 10) / 10; // Notes plus réalistes (min 4.5)
+
+                    Note::create([
+                        'eleve_id'    => $eleve->id,
+                        'matiere_id'  => $matiere->id,
+                        'trimestre'   => $trimestre,
+                        'valeurs'     => $note,
                     ]);
                 }
+                // Trimestre 3 reste vide
+            }
 
-                /*
-                |--------------------------------------------------------------------------
-                | Niveau de l'élève
-                |--------------------------------------------------------------------------
-                */
-
-                $niveau = rand(1, 100);
-
-                if ($niveau <= 25) {
-
-                    // Élève faible
-                    $minPourcentage = 0.10;
-                    $maxPourcentage = 0.50;
-
-                } elseif ($niveau <= 75) {
-
-                    // Élève moyen
-                    $minPourcentage = 0.40;
-                    $maxPourcentage = 0.80;
-
-                } else {
-
-                    // Excellent élève
-                    $minPourcentage = 0.70;
-                    $maxPourcentage = 1.00;
-                }
-
-                /*
-                |--------------------------------------------------------------------------
-                | Matières absentes selon le trimestre
-                |--------------------------------------------------------------------------
-                */
-
-                $matieresAbsentes = [];
-
-                for ($trimestre = 1; $trimestre <= 3; $trimestre++) {
-
-                    $matieresAbsentes[$trimestre] =
-                        $classe->matieres
-                            ->shuffle()
-                            ->take(rand(0, 2))
-                            ->pluck('id')
-                            ->toArray();
-                }
-
-                /*
-                |--------------------------------------------------------------------------
-                | Notes
-                |--------------------------------------------------------------------------
-                */
-
-                foreach ($classe->matieres as $matiere) {
-
-                    $bareme = $matiere->pivot->bareme;
-
-                    for ($trimestre = 1; $trimestre <= 3; $trimestre++) {
-
-                        if (
-                            in_array(
-                                $matiere->id,
-                                $matieresAbsentes[$trimestre]
-                            )
-                        ) {
-                            continue;
-                        }
-
-                        Note::create([
-                            'eleve_id'   => $eleve->id,
-                            'matiere_id' => $matiere->id,
-                            'trimestre'  => $trimestre,
-
-                            'valeurs' => fake()->randomFloat(
-                                2,
-                                round($bareme * $minPourcentage, 2),
-                                round($bareme * $maxPourcentage, 2)
-                            ),
-                        ]);
-                    }
-                }
+            // Paiements
+            if ($i % 3 !== 0) {
+                Paiement::create([
+                    'eleve_id' => $eleve->id,
+                    'montant'  => rand(25000, 50000),
+                ]);
             }
         }
     }

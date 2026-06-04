@@ -7,17 +7,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-/**
- * MODEL USER
- *
- * Changements :
- * - Ajout de "classe_id" dans $fillable
- *   → Permet de lier un enseignant à une classe directement
- *
- * Comment savoir si un prof est déjà assigné ?
- * → On cherche dans la table users si un user avec role=enseignant
- *   a déjà ce classe_id. Si oui, on ne le propose plus dans le select.
- */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes;
@@ -44,7 +33,7 @@ class User extends Authenticatable
         ];
     }
 
-    // ─── RELATIONS ───────────────────────────────────────────────────────
+    // RELATIONS 
 
     /**
      * Un enseignant appartient à une classe

@@ -12,27 +12,10 @@ use App\Models\Matiere;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-/**
- * CONTROLLER NOTE
- *
- * Logique des rôles :
- *
- * GESTIONNAIRE :
- *   - Peut voir le classement (index) mais PAS le formulaire d'ajout/modif
- *
- * ENSEIGNANT :
- *   - Voit tout
- *   - Pour ajouter une note : ne voit QUE les élèves de SA classe
- *   - La classe du prof = sa colonne classe_id dans la table users
- */
 class NoteController extends Controller
 {
-    // ─── INDEX ───────────────────────────────────────────────────────────
+    // INDEX 
 
-    /**
-     * Affiche le classement des élèves par classe
-     * Tout le monde peut voir cette page (gestionnaire + enseignant)
-     */
     public function index(Request $request)
     {
         $trimestre = $request->input('trimestre', 1);
@@ -63,7 +46,7 @@ class NoteController extends Controller
         return view('notes.index', compact('classes', 'trimestre', 'search'));
     }
 
-    // ─── CREATE ──────────────────────────────────────────────────────────
+    // CREATE 
 
     /**
      * Affiche le formulaire de saisie de notes
@@ -99,7 +82,7 @@ class NoteController extends Controller
         return view('notes.create', compact('eleves', 'matieres', 'classe'));
     }
 
-    // ─── STORE ───────────────────────────────────────────────────────────
+    // STORE 
 
     /**
      * Enregistre les notes dans la base de données
@@ -125,7 +108,7 @@ class NoteController extends Controller
         foreach ($request->notes as $matiereId => $valeurs) {
             // Si la valeur est vide, on passe (note non saisie)
             if ($valeurs === null || $valeurs === '') {
-                continue;
+                $valeurs=0;
             }
 
             // updateOrCreate : si la note existe pour cet élève/matière/trimestre,
@@ -146,7 +129,7 @@ class NoteController extends Controller
                          ->with('success', 'Notes enregistrées avec succès !');
     }
 
-    // ─── EDIT ────────────────────────────────────────────────────────────
+    // EDIT 
 
     /**
      * Affiche le formulaire de modification des notes d'un élève
@@ -183,7 +166,7 @@ class NoteController extends Controller
         return view('notes.edit', compact('eleve', 'trimestre', 'matieres', 'notesExistantes', 'classe'));
     }
 
-    // ─── UPDATE ──────────────────────────────────────────────────────────
+    // UPDATE 
 
     public function update(Request $request, $eleveId, $trimestre)
     {
@@ -199,7 +182,7 @@ class NoteController extends Controller
         // Même logique que store() : updateOrCreate pour chaque matière
         foreach ($request->notes as $matiereId => $valeurs) {
             if ($valeurs === null || $valeurs === '') {
-                continue;
+                $valeurs=0;
             }
 
             Note::updateOrCreate(
@@ -218,7 +201,7 @@ class NoteController extends Controller
                          ->with('success', 'Notes mises à jour avec succès !');
     }
 
-    // ─── BULLETIN PDF ────────────────────────────────────────────────────
+    //  BULLETIN PDF 
 
     /**
      * Génère et télécharge le bulletin de l'élève en PDF
@@ -255,7 +238,7 @@ class NoteController extends Controller
         return $pdf->download("bulletin_{$eleve->nom}_{$eleve->prenom}_T{$trimestre}.pdf");
     }
 
-    // ─── EDIT FRAGMENT (pour AJAX) ────────────────────────────────────────
+    //  EDIT FRAGMENT (pour AJAX)
 
     /**
      * Retourne uniquement le formulaire d'édition (sans layout)

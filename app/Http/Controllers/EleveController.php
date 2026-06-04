@@ -13,7 +13,7 @@ class EleveController extends Controller
     // Afficher la liste des élèves (Zoning : Page Eleves)
     public function index()
     {
-        // On récupère les élèves avec leur classe associée (Eager Loading pour optimiser)
+        // On récupère les élèves avec leur classe associée
         $eleves = Eleve::with('classe')->get();
         // On récupère aussi toutes les classes pour alimenter le formulaire d'ajout
         $classes = Classe::all();

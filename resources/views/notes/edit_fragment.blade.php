@@ -28,7 +28,7 @@
             @php
                 $bareme        = $matiere->pivot->bareme ?? 10;
                 $noteExistante = $notesExistantes[$matiere->id] ?? null;
-                $valeur        = $noteExistante ? $noteExistante->valeur : '';
+                $valeurs        = $noteExistante ? $noteExistante->valeurs : '';
             @endphp
             <div class="form-group">
                 <label class="form-label">
@@ -39,9 +39,9 @@
                        name="notes[{{ $matiere->id }}]"
                        class="form-control"
                        placeholder="/{{ $bareme }}"
-                       value="{{ $valeur }}"
+                       value="{{ $valeurs }}"
                        min="0" max="{{ $bareme }}"
-                       step="0.5">
+                       step="0.01" required>
             </div>
             @endforeach
         </div>

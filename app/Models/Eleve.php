@@ -5,15 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * MODEL ELEVE
- *
- * Changements par rapport à l'ancienne version :
- * - La méthode moyenneTrimestrielle() est totalement réécrite.
- *   Avant : elle lisait des colonnes fixes (lecture, calcul, etc.)
- *   Maintenant : elle lit les notes dynamiques par matière et
- *   ramène chaque note sur 10 selon le barème de la classe.
- */
+
 class Eleve extends Model
 {
     use SoftDeletes;
@@ -21,7 +13,7 @@ class Eleve extends Model
     protected $fillable = ['nom', 'prenom', 'genre', 'photo', 'classe_id'];
     protected $dates = ['deleted_at'];
 
-    // ─── RELATIONS ───────────────────────────────────────────────────────
+    // RELATIONS 
 
     // Un élève appartient à une classe
     public function classe()
@@ -41,7 +33,7 @@ class Eleve extends Model
         return $this->hasMany(Note::class);
     }
 
-    // ─── MÉTHODES DE CALCUL ──────────────────────────────────────────────
+    //  MÉTHODES DE CALCUL 
 
     /**
      * Calcul du total payé par l'élève
@@ -109,7 +101,7 @@ class Eleve extends Model
         foreach ($notes as $note) {
             // Si la note n'a pas de valeur, on passe
             if ($note->valeurs === null) {
-                continue;
+                $note->valeurs=0;
             }
 
             // Récupérer le barème de cette matière pour cette classe

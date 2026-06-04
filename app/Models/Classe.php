@@ -5,21 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * MODEL CLASSE
- *
- * Changements :
- * - La relation matieres() utilise maintenant "bareme" au lieu de "coefficient"
- *   et récupère aussi le user_id (l'enseignant assigné à cette matière)
- * - Nouvelle méthode enseignant() pour savoir quel prof gère la classe
- */
 class Classe extends Model
 {
     use SoftDeletes;
 
     protected $fillable = ['nom', 'frais'];
 
-    // ─── RELATIONS ───────────────────────────────────────────────────────
+    //  RELATIONS 
 
     // Une classe a plusieurs élèves
     public function eleves()
@@ -27,12 +19,6 @@ class Classe extends Model
         return $this->hasMany(Eleve::class);
     }
 
-    /**
-     * Une classe a plusieurs matières (relation many-to-many)
-     * La table pivot "classe_matiere" contient aussi :
-     * - bareme  : note maximum pour cette matière dans cette classe (10 ou 20)
-     * - user_id : l'enseignant qui gère la classe
-     */
     public function matieres()
     {
         return $this->belongsToMany(Matiere::class, 'classe_matiere')

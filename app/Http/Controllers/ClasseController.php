@@ -13,7 +13,7 @@ use Illuminate\Validation\Rule;
 
 class ClasseController extends Controller
 {
-    // ─── INDEX ───────────────────────────────────────────────────────────
+    // INDEX 
 
     public function index(Request $request)
     {
@@ -65,7 +65,7 @@ class ClasseController extends Controller
         ));
     }
 
-    // ─── STORE ───────────────────────────────────────────────────────────
+    // STORE
 
     public function store(Request $request)
     {
@@ -129,7 +129,7 @@ class ClasseController extends Controller
                          ->with('success', 'Classe créée avec succès !');
     }
 
-    // ─── EDIT ────────────────────────────────────────────────────────────
+    //  EDIT 
 
     public function edit($id)
     {
@@ -149,7 +149,7 @@ class ClasseController extends Controller
         return view('classes.edit', compact('classe', 'matieres', 'enseignantsDisponibles'));
     }
 
-    // ─── UPDATE ──────────────────────────────────────────────────────────
+    // UPDATE 
 
     public function update(Request $request, $id)
     {
@@ -183,14 +183,17 @@ class ClasseController extends Controller
         */
 
         // Retirer l'ancien enseignant de cette classe
-        User::where('classe_id', $classe->id)
-            ->update(['classe_id' => null]);
+        if ($request->enseignant_id!=null){
+            User::where('classe_id', $classe->id)
+                ->update(['classe_id' => null]);
 
-        // Affecter le nouvel enseignant
-        if ($request->filled('enseignant_id')) {
-            User::where('id', $request->enseignant_id)
-                ->update(['classe_id' => $classe->id]);
+                // Affecter le nouvel enseignant
+            if ($request->filled('enseignant_id')) {
+                User::where('id', $request->enseignant_id)
+                    ->update(['classe_id' => $classe->id]);
+            }
         }
+        
 
         /*
         |--------------------------------------------------------------------------
@@ -229,7 +232,7 @@ class ClasseController extends Controller
             ->with('success', 'Classe modifiée avec succès !');
     }
 
-    // ─── DESTROY ─────────────────────────────────────────────────────────
+    // DESTROY 
 
     public function destroy($id)
     {

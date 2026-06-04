@@ -7,13 +7,6 @@ use App\Models\Classe;
 use App\Models\Eleve;
 use Illuminate\Support\Facades\DB;
 
-/**
- * CONTROLLER DASHBOARD
- *
- * Changements :
- * - statsClasses contient maintenant les élèves triés par rang
- *   pour afficher le classement en 2 colonnes dans la vue
- */
 class DashboardController extends Controller
 {
     public function index(Request $request)
@@ -22,7 +15,7 @@ class DashboardController extends Controller
         $eleves = Eleve::with(['classe', 'paiements'])->get();
         $trimestre = $request->input('trimestre', 1);
 
-        // ── Statistiques globales ──────────────────────────────────────
+        //Statistiques globales
         $totalEleves  = Eleve::count();
         $totalClasses = Classe::count();
         $totalEncaisse = DB::table('paiements')->sum('montant') ?? 0;
@@ -55,7 +48,7 @@ class DashboardController extends Controller
             ? round(($elevesAdmis / $elevesAvecMoyenne) * 100, 1)
             : 0;
 
-        // ── Classement par classe ──────────────────────────────────────
+        //  Classement par classe 
         // On charge les classes avec élèves + photos + notes + matières
         $classes = Classe::with([
             'eleves',
@@ -81,7 +74,7 @@ class DashboardController extends Controller
             'totalAttendu',
             'trimestre',
             'classes',
-            'eleves'// On passe les classes directement (pas statsClasses)
+            'eleves',
         ));
     }
 }

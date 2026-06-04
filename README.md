@@ -434,7 +434,7 @@ public function moyenneTrimestrielle($trimestre = 1)
 {
     // 1. Récupérer les notes du trimestre
     // 2. Pour chaque note, récupérer le barème de la matière dans la classe
-    // 3. Ramener sur 10 : (valeur / bareme) * 10
+    // 3. Ramener sur 10 : (valeurs / bareme) * 10
     // 4. Faire la moyenne
 }
 ```

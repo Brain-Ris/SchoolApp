@@ -211,7 +211,7 @@
                                    class="form-control"
                                    placeholder="/{{ $bareme }}"
                                    min="0" max="{{ $bareme }}"
-                                   step="0.5">
+                                   step="0.01" required>
                         </div>
                         @endforeach
                     </div>
